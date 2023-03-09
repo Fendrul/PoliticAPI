@@ -1,0 +1,31 @@
+package be.techni.PoliticAPI.controllers;
+
+import be.techni.PoliticAPI.models.dto.ClientDTO;
+import be.techni.PoliticAPI.services.ClientService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/client")
+public class ClientController {
+
+    private final ClientService clientServ;
+
+    @Autowired
+    public ClientController(ClientService clientServ) {
+        this.clientServ = clientServ;
+    }
+
+    @GetMapping("/id:{id}")
+    public ClientDTO getClientById(long id) {
+        return clientServ.getById(id);
+    }
+
+    @GetMapping("/name:{name}")
+    public ClientDTO getClientByName(@PathVariable("name") String name) {
+        return clientServ.getByName(name);
+    }
+}
