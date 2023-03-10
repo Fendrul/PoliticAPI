@@ -41,8 +41,7 @@ public class DataLoader implements ApplicationRunner {
         argument.setAuthor(client);
         argument.setTitle("title test answer");
         argument.setDescription("description test answer");
-        argument.setAnswerTo(List.of(argumentRepo.findById(1L).get()));
+        argument.setAnswerTo(argumentRepo.findById(1L).get());
         argumentRepo.save(argument);
-
     }
 }

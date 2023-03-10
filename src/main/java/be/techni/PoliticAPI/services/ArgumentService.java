@@ -2,9 +2,18 @@ package be.techni.PoliticAPI.services;
 
 import be.techni.PoliticAPI.models.dto.ArgumentDTO;
 import be.techni.PoliticAPI.models.entities.Argument;
+import be.techni.PoliticAPI.models.entities.Category;
+import be.techni.PoliticAPI.models.entities.Client;
+import be.techni.PoliticAPI.models.entities.Source;
+import be.techni.PoliticAPI.models.forms.ArgumentForm;
 import be.techni.PoliticAPI.repositories.ArgumentRepository;
+import be.techni.PoliticAPI.repositories.CategoryRepository;
+import be.techni.PoliticAPI.repositories.ClientRepository;
+import be.techni.PoliticAPI.repositories.SourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,18 +22,84 @@ import java.util.stream.Collectors;
 @Service
 public class ArgumentService {
 
-    private final ArgumentRepository argumentRepository;
+    private final ArgumentRepository argumentRepo;
+    private final SourceRepository sourceRepo;
+    private final CategoryRepository categoryRepo;
+    private final ClientRepository clientRepo;
 
     @Autowired
-    public ArgumentService(ArgumentRepository argumentRepository) {
-        this.argumentRepository = argumentRepository;
+    public ArgumentService(ArgumentRepository argumentRepository, SourceRepository sourceRepo, CategoryRepository categoryRepo, ClientRepository clientRepo) {
+        this.argumentRepo = argumentRepository;
+        this.sourceRepo = sourceRepo;
+        this.categoryRepo = categoryRepo;
+        this.clientRepo = clientRepo;
     }
 
     public List<ArgumentDTO> getListLastArguments(int listLength) {
-        List<Argument> lastArguments = argumentRepository.findLastArguments(listLength);
+        List<Argument> lastArguments = argumentRepo.findLastArguments(listLength);
 
         return lastArguments.stream()
                 .map(ArgumentDTO::fromEntity)
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public ResponseEntity<?> addArgument(ArgumentForm form, BindingResult result) {
+        Argument newArgument = new Argument();
+
+        newArgument.setTitle(form.getTitle());
+        newArgument.setDescription(form.getDescription());
+
+        Client client = clientRepo.findById(form.getClientId())
+                .orElseGet(() -> {
+                    result.rejectValue("clientId", "argument.client.invalid", "Client ID %d not found".formatted(form.getClientId()));
+                    return null;
+                });
+
+        if (client != null) {newArgument.setAuthor(client);}
+
+        if (form.getAnswerTo() != null) {
+            Argument answerTo = argumentRepo.findById(form.getAnswerTo())
+                    .orElseGet(() -> {
+                        result.rejectValue("answerTo", "argument.answerTo.invalid", "Argument not found");
+                        return null;
+                    });
+
+            if (answerTo != null) {newArgument.setAnswerTo(answerTo);}
+        }
+
+        for (Long categoryId : form.getCategoriesId()) {
+            Category categoryToAdd = categoryRepo.findById(categoryId)
+                    .orElseGet(() -> {
+                        result.rejectValue("categoriesId", "argument.category.invalid", "Category ID %d not found".formatted(categoryId));
+                        return null;
+                    });
+
+            if (categoryToAdd != null) {
+                categoryRepo.save(categoryToAdd);
+                newArgument.getCategories().add(categoryToAdd);
+            }
+        }
+
+        for (String source : form.getSources()) {
+            Source sourceToAdd = sourceRepo.findByDescription(source)
+                    .orElseGet(() -> {
+                        Source newSource = new Source();
+                        newSource.setDescription(source);
+                        sourceRepo.save(newSource);
+                        return newSource;
+                    });
+
+            sourceToAdd.setDescription(source);
+            sourceRepo.save(sourceToAdd);
+            newArgument.getSources().add(sourceToAdd);
+        }
+
+
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body(result.getAllErrors());
+        } else {
+            argumentRepo.save(newArgument);
+            return ResponseEntity.ok().build();
+        }
     }
 }

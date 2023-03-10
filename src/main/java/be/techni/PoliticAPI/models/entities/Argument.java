@@ -20,7 +20,7 @@ public class Argument {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "argument_id", nullable = false)
+    @Column(name = "argument_id", nullable = false, insertable = false, updatable = false)
     private Long argument_id;
 
     @Column(name = "title", nullable = false)
@@ -32,14 +32,12 @@ public class Argument {
     @Column(name = "date", nullable = false)
     LocalDateTime date;
 
-    @ManyToMany
-    @JoinTable(name = "argument_answer_to",
-            joinColumns = @JoinColumn(name = "argument_id"),
-            inverseJoinColumns = @JoinColumn(name = "answer_to_id"))
-    List<Argument> answerTo = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "answer_to", nullable = true)
+    Argument answerTo;
 
-    @ManyToMany(mappedBy = "answerTo")
-    List<Argument> answerFrom = new ArrayList<>();
+    @OneToMany(mappedBy = "answerTo")
+    List<Argument> answers = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)

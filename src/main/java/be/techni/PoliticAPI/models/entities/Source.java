@@ -17,7 +17,7 @@ public class Source {
     @Column(name = "source_id", nullable = false)
     private Long source_id;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, unique = true)
     String description;
 
     @ManyToMany
