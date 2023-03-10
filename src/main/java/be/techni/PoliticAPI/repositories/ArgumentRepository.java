@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ArgumentRepository extends JpaRepository<Argument, Long> {
-    @Query(nativeQuery = true, value = "select a from Argument a order by a.date DESC LIMIT ?1")
+    @Query(nativeQuery = true, value = "select * from Argument a order by a.date DESC LIMIT ?1")
     List<Argument> findLastArguments(int listLength);
 
     @Query("""

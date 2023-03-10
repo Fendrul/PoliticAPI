@@ -13,6 +13,11 @@ import java.util.List;
 @Getter
 @Setter
 public class Argument {
+
+    public Argument() {
+        this.date = LocalDateTime.now();
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "argument_id", nullable = false)
