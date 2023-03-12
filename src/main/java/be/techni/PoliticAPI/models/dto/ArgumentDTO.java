@@ -1,7 +1,6 @@
 package be.techni.PoliticAPI.models.dto;
 
 import be.techni.PoliticAPI.models.entities.Argument;
-import be.techni.PoliticAPI.models.entities.Category;
 import be.techni.PoliticAPI.models.entities.Source;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,7 +33,7 @@ public class ArgumentDTO {
                 .description(entity.getDescription())
                 .source(entity.getSources().stream().map(Source::getDescription).toList())
                 .category(entity.getCategories().stream().collect(Map::ofEntries, (map, category) -> map.put(category.getCategory_id(), category.getName()), Map::putAll))
-                .author(Map.entry(entity.getAuthor().getClient_id(), entity.getAuthor().getName()))
+                .author(Map.entry(entity.getAuthor().getUser_id(), entity.getAuthor().getUsername()))
                 .date(entity.getDate().toString())
                 .build();
     }

@@ -6,7 +6,6 @@ import be.techni.PoliticAPI.services.ArgumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,12 +29,9 @@ public class ArgumentController {
 
     @PostMapping("/add")
     public ResponseEntity<?> addArgument(@RequestBody @Valid ArgumentForm form, BindingResult result) {
-        if (result.hasErrors()) {
-            List<ObjectError> errors = result.getAllErrors();
-            return ResponseEntity.badRequest().body(errors);
-        } else {
-            return argumentService.addArgument(form, result);
-        }
+        if (result.hasErrors())
+            return ResponseEntity.badRequest().body(result.getAllErrors());
 
+        return argumentService.addArgument(form, result);
     }
 }

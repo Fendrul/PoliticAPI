@@ -10,3 +10,7 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: create
+
+jwt:
+  secret: mySecretToken
+  expirationTime: 86400000

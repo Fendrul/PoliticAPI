@@ -3,12 +3,12 @@ package be.techni.PoliticAPI.services;
 import be.techni.PoliticAPI.models.dto.ArgumentDTO;
 import be.techni.PoliticAPI.models.entities.Argument;
 import be.techni.PoliticAPI.models.entities.Category;
-import be.techni.PoliticAPI.models.entities.Client;
+import be.techni.PoliticAPI.models.entities.User;
 import be.techni.PoliticAPI.models.entities.Source;
 import be.techni.PoliticAPI.models.forms.ArgumentForm;
 import be.techni.PoliticAPI.repositories.ArgumentRepository;
 import be.techni.PoliticAPI.repositories.CategoryRepository;
-import be.techni.PoliticAPI.repositories.ClientRepository;
+import be.techni.PoliticAPI.repositories.UserRepository;
 import be.techni.PoliticAPI.repositories.SourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +25,10 @@ public class ArgumentService {
     private final ArgumentRepository argumentRepo;
     private final SourceRepository sourceRepo;
     private final CategoryRepository categoryRepo;
-    private final ClientRepository clientRepo;
+    private final UserRepository clientRepo;
 
     @Autowired
-    public ArgumentService(ArgumentRepository argumentRepository, SourceRepository sourceRepo, CategoryRepository categoryRepo, ClientRepository clientRepo) {
+    public ArgumentService(ArgumentRepository argumentRepository, SourceRepository sourceRepo, CategoryRepository categoryRepo, UserRepository clientRepo) {
         this.argumentRepo = argumentRepository;
         this.sourceRepo = sourceRepo;
         this.categoryRepo = categoryRepo;
@@ -49,13 +49,15 @@ public class ArgumentService {
         newArgument.setTitle(form.getTitle());
         newArgument.setDescription(form.getDescription());
 
-        Client client = clientRepo.findById(form.getClientId())
+        User user = clientRepo.findById(form.getClientId())
                 .orElseGet(() -> {
                     result.rejectValue("clientId", "argument.client.invalid", "Client ID %d not found".formatted(form.getClientId()));
                     return null;
                 });
 
-        if (client != null) {newArgument.setAuthor(client);}
+        if (user != null) {
+            newArgument.setAuthor(user);
+        }
 
         if (form.getAnswerTo() != null) {
             Argument answerTo = argumentRepo.findById(form.getAnswerTo())
@@ -64,7 +66,9 @@ public class ArgumentService {
                         return null;
                     });
 
-            if (answerTo != null) {newArgument.setAnswerTo(answerTo);}
+            if (answerTo != null) {
+                newArgument.setAnswerTo(answerTo);
+            }
         }
 
         for (Long categoryId : form.getCategoriesId()) {
@@ -95,11 +99,10 @@ public class ArgumentService {
         }
 
 
-        if (result.hasErrors()) {
+        if (result.hasErrors())
             return ResponseEntity.badRequest().body(result.getAllErrors());
-        } else {
-            argumentRepo.save(newArgument);
-            return ResponseEntity.ok().build();
-        }
+
+        argumentRepo.save(newArgument);
+        return ResponseEntity.ok().build();
     }
 }

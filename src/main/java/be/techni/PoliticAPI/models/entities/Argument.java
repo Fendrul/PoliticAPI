@@ -41,7 +41,7 @@ public class Argument {
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
-    Client author;
+    User author;
 
     @ManyToMany(mappedBy = "argumentsSourced")
     List<Source> sources = new ArrayList<>();

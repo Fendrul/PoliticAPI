@@ -1,7 +1,7 @@
 package be.techni.PoliticAPI.controllers;
 
 import be.techni.PoliticAPI.models.dto.ClientDTO;
-import be.techni.PoliticAPI.services.ClientService;
+import be.techni.PoliticAPI.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/client")
-public class ClientController {
+public class UserController {
 
-    private final ClientService clientServ;
+    private final UserService clientServ;
 
     @Autowired
-    public ClientController(ClientService clientServ) {
+    public UserController(UserService clientServ) {
         this.clientServ = clientServ;
     }
 
