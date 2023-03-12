@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class UserDetailsServiceImpl {
     private final UserRepository userRepository;
     private final RoleRepository roleRepo;
+
     @Autowired
     public UserDetailsServiceImpl(UserRepository userRepository, RoleRepository roleRepo) {
         this.userRepository = userRepository;
@@ -33,18 +34,20 @@ public class UserDetailsServiceImpl {
         return getGrantedAuthorities(getPrivileges(user.getRoles()));
     }
 
+    /**
+     * Get the privileges from the roles
+     *
+     * @param roles the roles of the user
+     * @return the privileges of the user
+     * @deprecated use user.getAuthorities instead
+     */
+    @Deprecated
     private static Set<String> getPrivileges(Set<Role> roles) {
-        return roles.stream()
-                .map(Role::getPrivileges)
-                .flatMap(Set::stream)
-                .map(Privilege::getName)
-                .collect(Collectors.toSet());
+        return roles.stream().map(Role::getPrivileges).flatMap(Set::stream).map(Privilege::getName).collect(Collectors.toSet());
     }
 
     private static Set<GrantedAuthority> getGrantedAuthorities(Set<String> privileges) {
-        return privileges.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toSet());
+        return privileges.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
     }
 
     //TODO vérifier le fonctionnement de cette méthode

@@ -1,10 +1,14 @@
 package be.techni.PoliticAPI.jwt;
 
 import be.techni.PoliticAPI.models.entities.User;
+import be.techni.PoliticAPI.repositories.UserRepository;
 import be.techni.PoliticAPI.services.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -16,10 +20,18 @@ public class JwtProvider {
     private int expirationTime;
     @Value("${jwt.secret}")
     private String secret;
+    private final UserRepository userRepo;
+    private final UserDetailsServiceImpl userDetailsService;
+
+    @Autowired
+    public JwtProvider(UserRepository userRepo, UserDetailsServiceImpl userDetailsService) {
+        this.userRepo = userRepo;
+        this.userDetailsService = userDetailsService;
+    }
 
     public String createToken(User user) {
         Claims claims = Jwts.claims().setSubject(user.getUsername());
-        claims.put("roles", UserDetailsServiceImpl.getAuthorities(user));
+        claims.put("roles", userDetailsService.getAuthorities(user));
         claims.put("id", user.getUser_id());
 
         Date now = new Date();
@@ -50,4 +62,18 @@ public class JwtProvider {
     private boolean isTokenExpired(Date dateTokenCreated) {
         return dateTokenCreated.before(new Date());
     }
+
+    public Authentication getAuthentication(String token) {
+        Claims claims = Jwts.parser().
+                setSigningKey(secret).
+                parseClaimsJws(token).
+                getBody();
+
+        User user = userRepo.findByUsername(claims.getSubject())
+                .orElseThrow(() -> new RuntimeException("User not found in the token"));
+
+        return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
+    }
+
+
 }

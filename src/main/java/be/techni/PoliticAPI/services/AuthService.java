@@ -36,7 +36,7 @@ public class AuthService {
             result.rejectValue("username", "user.username.invalid", "The username %s already exists".formatted(form.getUsername()));
         }
 
-        Role role = roleRepo.findByName("ROLE_ADMIN")
+        Role role = roleRepo.findByName("USER")
                 .orElseThrow(() -> new RuntimeException("Role not found"));
         user.getRoles().add(role);
         user.setUsername(form.getUsername());

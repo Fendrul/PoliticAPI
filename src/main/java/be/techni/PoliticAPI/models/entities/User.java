@@ -1,13 +1,16 @@
 package be.techni.PoliticAPI.models.entities;
 
-import be.techni.PoliticAPI.services.UserDetailsServiceImpl;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "\"user\"")
@@ -23,7 +26,9 @@ public class User implements UserDetails {
     private String username;
     private String password;
     private boolean enabled;
-    @ManyToMany
+
+    //tODO changer les fetchtype eager pour des query JPQL avec JOIN FETCH
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -44,7 +49,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return new ArrayList<GrantedAuthority>(UserDetailsServiceImpl.getAuthorities(this));
+        return getGrantedAuthorities(getPrivileges(this.getRoles()));
     }
 
     @Override
@@ -60,5 +65,19 @@ public class User implements UserDetails {
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
+    }
+
+    private static Set<String> getPrivileges(Set<Role> roles) {
+        return roles.stream()
+                .map(Role::getPrivileges)
+                .flatMap(Set::stream)
+                .map(Privilege::getName)
+                .collect(Collectors.toSet());
+    }
+
+    private static Set<GrantedAuthority> getGrantedAuthorities(Set<String> privileges) {
+        return privileges.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toSet());
     }
 }
