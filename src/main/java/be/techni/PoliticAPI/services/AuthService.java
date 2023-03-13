@@ -1,7 +1,6 @@
 package be.techni.PoliticAPI.services;
 
 import be.techni.PoliticAPI.jwt.JwtProvider;
-import be.techni.PoliticAPI.jwt.JwtResponse;
 import be.techni.PoliticAPI.models.entities.Role;
 import be.techni.PoliticAPI.models.entities.User;
 import be.techni.PoliticAPI.models.forms.LoginForm;
@@ -48,9 +47,7 @@ public class AuthService {
 
         userRepo.save(user);
 
-        String jwt = jwtProvider.createToken(user);
-        System.out.println(jwt);
-        return ResponseEntity.ok(new JwtResponse(jwt));
+        return setAuthorizationHeaderWithToken(user);
     }
 
     public ResponseEntity<?> loginUser(LoginForm form, BindingResult result) {
@@ -62,14 +59,18 @@ public class AuthService {
 
         if (user != null) {
             if (passwordEncoder.matches(form.getPassword(), user.getPassword())) {
-                String token = jwtProvider.createToken(user);
-                System.out.println(token);
-                return ResponseEntity.ok(new JwtResponse(token));
+                return setAuthorizationHeaderWithToken(user);
             } else {
                 result.rejectValue("password", "login.password.invalid", "Password is invalid");
             }
         }
 
         return ResponseEntity.badRequest().body(result.getAllErrors());
+    }
+
+    private ResponseEntity<?> setAuthorizationHeaderWithToken(User user) {
+        String token = jwtProvider.createToken(user);
+        System.out.println(token);
+        return ResponseEntity.ok().header("Authorization", "Bearer " + token).build();
     }
 }
