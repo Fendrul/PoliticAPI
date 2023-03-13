@@ -1,11 +1,13 @@
 package be.techni.PoliticAPI.models.dto;
 
+import be.techni.PoliticAPI.models.entities.Argument;
 import be.techni.PoliticAPI.models.entities.Category;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -20,19 +22,15 @@ public class CategoryDTO {
             return null;
         }
 
-        CategoryDTO categoryDTO = CategoryDTO.builder()
+        return CategoryDTO.builder()
                 .id(entity.getCategory_id())
                 .name(entity.getName())
                 .argumentsTitle(
                         entity.getArguments().stream()
                                 .collect(
-                                        Map::ofEntries,
-                                        (map, argument) -> map.put(argument.getArgument_id(), argument.getTitle()),
-                                        Map::putAll
+                                        Collectors.toMap(Argument::getArgument_id, Argument::getTitle)
                                 )
                 )
                 .build();
-
-        return categoryDTO;
     }
 }

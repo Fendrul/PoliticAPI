@@ -14,7 +14,6 @@ import be.techni.PoliticAPI.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
 import java.util.ArrayList;
@@ -111,8 +110,8 @@ public class ArgumentService {
     public void addCategoryToArgument(Argument argument, int... categoriesID) {
         List<Category> categories = new ArrayList<>();
 
-        for (int categoryId : categoriesID) {
-            Category categoryToAdd = categoryRepo.findById((long) categoryId)
+        for (long categoryId : categoriesID) {
+            Category categoryToAdd = categoryRepo.findByIdEagerFetch(categoryId)
                     .orElseThrow(() -> new RessourceNotFound("Category ID %d not found".formatted(categoryId)));
 
             if (categoryToAdd != null)
@@ -126,9 +125,8 @@ public class ArgumentService {
         List<Category> categories = new ArrayList<>();
 
         for (String categoryName : categoriesName) {
-            Category categoryToAdd = categoryRepo.findByName(categoryName)
-                    .orElseThrow(() -> new RessourceNotFound("Category %s not found".formatted(categoryName)))
-                    .fetch();
+            Category categoryToAdd = categoryRepo.findByNameEagerFetch(categoryName)
+                    .orElseThrow(() -> new RessourceNotFound("Category %s not found".formatted(categoryName)));
 
             if (categoryToAdd != null) {
                 categories.add(categoryToAdd);

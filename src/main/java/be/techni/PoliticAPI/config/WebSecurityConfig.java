@@ -36,6 +36,7 @@ public class WebSecurityConfig {
             authorize
                     .requestMatchers("/api/register").permitAll()
                     .requestMatchers("/api/login").permitAll()
+                    .requestMatchers("/arguments/add").hasRole("ADMIN")
                     .anyRequest().authenticated();
         });
 
