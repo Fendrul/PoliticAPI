@@ -46,6 +46,6 @@ public class Argument {
     @ManyToMany(mappedBy = "argumentsSourced")
     List<Source> sources = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "argumentsInCategory")
+    @ManyToMany(mappedBy = "arguments")
     List<Category> categories = new ArrayList<>();
 }

@@ -15,7 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
+//@EnableWebSecurity
 public class WebSecurityConfig {
     private final JwtAuthenticationFilter jwtFilter;
 
@@ -36,6 +36,7 @@ public class WebSecurityConfig {
             authorize
                     .requestMatchers("/api/register").permitAll()
                     .requestMatchers("/api/login").permitAll()
+                    .requestMatchers("/arguments/add").hasRole("ADMIN")
                     .anyRequest().authenticated();
         });
 

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -24,7 +25,12 @@ public class CategoryDTO {
         return CategoryDTO.builder()
                 .id(entity.getCategory_id())
                 .name(entity.getName())
-                .argumentsTitle(entity.getArgumentsInCategory().stream().collect(Map::ofEntries, (map, argument) -> map.put(argument.getArgument_id(), argument.getTitle()), Map::putAll))
+                .argumentsTitle(
+                        entity.getArguments().stream()
+                                .collect(
+                                        Collectors.toMap(Argument::getArgument_id, Argument::getTitle)
+                                )
+                )
                 .build();
     }
 }

@@ -1,15 +1,16 @@
 package be.techni.PoliticAPI.services;
 
+import be.techni.PoliticAPI.exceptions.RessourceNotFound;
 import be.techni.PoliticAPI.models.dto.ArgumentDTO;
 import be.techni.PoliticAPI.models.entities.Argument;
 import be.techni.PoliticAPI.models.entities.Category;
-import be.techni.PoliticAPI.models.entities.User;
 import be.techni.PoliticAPI.models.entities.Source;
+import be.techni.PoliticAPI.models.entities.User;
 import be.techni.PoliticAPI.models.forms.ArgumentForm;
 import be.techni.PoliticAPI.repositories.ArgumentRepository;
 import be.techni.PoliticAPI.repositories.CategoryRepository;
-import be.techni.PoliticAPI.repositories.UserRepository;
 import be.techni.PoliticAPI.repositories.SourceRepository;
+import be.techni.PoliticAPI.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -104,5 +105,45 @@ public class ArgumentService {
 
         argumentRepo.save(newArgument);
         return ResponseEntity.ok().build();
+    }
+
+    public void addCategoryToArgument(Argument argument, int... categoriesID) {
+        List<Category> categories = new ArrayList<>();
+
+        for (long categoryId : categoriesID) {
+            Category categoryToAdd = categoryRepo.findByIdEagerFetch(categoryId)
+                    .orElseThrow(() -> new RessourceNotFound("Category ID %d not found".formatted(categoryId)));
+
+            if (categoryToAdd != null)
+                categories.add(categoryToAdd);
+        }
+
+        addCategoryToArgument(argument, categories);
+    }
+
+    public void addCategoryToArgument(Argument argument, String... categoriesName) {
+        List<Category> categories = new ArrayList<>();
+
+        for (String categoryName : categoriesName) {
+            Category categoryToAdd = categoryRepo.findByNameEagerFetch(categoryName)
+                    .orElseThrow(() -> new RessourceNotFound("Category %s not found".formatted(categoryName)));
+
+            if (categoryToAdd != null) {
+                categories.add(categoryToAdd);
+            }
+        }
+
+        addCategoryToArgument(argument, categories);
+    }
+
+    public void addCategoryToArgument(Argument argument, List<Category> categories) {
+        for (Category category : categories) {
+            if (category != null && !argument.getCategories().contains(category)) {
+                argument.getCategories().add(category);
+                category.getArguments().add(argument);
+                argumentRepo.save(argument);
+                categoryRepo.save(category);
+            }
+        }
     }
 }

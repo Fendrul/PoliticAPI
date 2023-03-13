@@ -17,7 +17,7 @@ public class Category {
     @Column(name = "category_id", nullable = false)
     private Long category_id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     String name;
 
     @ManyToMany
@@ -26,5 +26,11 @@ public class Category {
             joinColumns = @JoinColumn(name = "category_id"),
             inverseJoinColumns = @JoinColumn(name = "argument_id")
     )
-    List<Argument> argumentsInCategory = new ArrayList<>();
+    List<Argument> arguments = new ArrayList<>();
+
+    public Category() {}
+
+    public Category(String name) {
+        this.name = name;
+    }
 }

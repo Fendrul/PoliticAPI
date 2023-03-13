@@ -1,7 +1,7 @@
 package be.techni.PoliticAPI.services;
 
 import be.techni.PoliticAPI.jwt.JwtProvider;
-import be.techni.PoliticAPI.models.dto.ClientDTO;
+import be.techni.PoliticAPI.models.dto.UserDTO;
 import be.techni.PoliticAPI.models.entities.User;
 import be.techni.PoliticAPI.repositories.RoleRepository;
 import be.techni.PoliticAPI.repositories.UserRepository;
@@ -22,18 +22,18 @@ public class UserService {
         this.roleRepo = roleRepo;
     }
 
-    public ClientDTO getById(long id) {
+    public UserDTO getById(long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Client not found"));
 
-        return ClientDTO.fromEntity(user);
+        return UserDTO.fromEntity(user);
     }
 
-    public ClientDTO getByName(String name) {
+    public UserDTO getByName(String name) {
         User user = userRepository.findByName(name)
                 .orElseThrow(() -> new RuntimeException("Client not found"));
 
-        return ClientDTO.fromEntity(user);
+        return UserDTO.fromEntity(user);
     }
 
 

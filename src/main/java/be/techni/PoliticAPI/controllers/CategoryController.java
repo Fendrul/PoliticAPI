@@ -1,6 +1,7 @@
 package be.techni.PoliticAPI.controllers;
 
 import be.techni.PoliticAPI.models.dto.ArgumentDTO;
+import be.techni.PoliticAPI.models.dto.CategoryDTO;
 import be.techni.PoliticAPI.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +22,13 @@ public class CategoryController {
         this.categoryServ = categoryServ;
     }
 
-    @GetMapping("/id:{id}/getAll")
+    @GetMapping("/id:{id}/get_all")
     public List<ArgumentDTO> getArgumentsByCategoryId(@PathVariable("id") long id) {
         return categoryServ.getArgumentsByCategoryId(id);
+    }
+
+    @GetMapping("/get_all")
+    public List<CategoryDTO> getAllCategories() {
+        return categoryServ.getAllCategories();
     }
 }
