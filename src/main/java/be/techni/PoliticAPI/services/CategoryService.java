@@ -1,6 +1,7 @@
 package be.techni.PoliticAPI.services;
 
 import be.techni.PoliticAPI.models.dto.ArgumentDTO;
+import be.techni.PoliticAPI.models.dto.CategoryDTO;
 import be.techni.PoliticAPI.models.entities.Argument;
 import be.techni.PoliticAPI.repositories.ArgumentRepository;
 import be.techni.PoliticAPI.repositories.CategoryRepository;
@@ -24,6 +25,14 @@ public class CategoryService {
     public List<ArgumentDTO> getArgumentsByCategoryId(long id) {
         List<Argument> arguments = argumentRepository.findAllByCategoryId(id);
 
-        return arguments.stream().map(ArgumentDTO::fromEntity).toList();
+        return arguments.stream()
+                .map(ArgumentDTO::fromEntity)
+                .toList();
+    }
+
+    public List<CategoryDTO> getAllCategories() {
+        return categoryRepository.findAll().stream()
+                .map(CategoryDTO::fromEntity)
+                .toList();
     }
 }

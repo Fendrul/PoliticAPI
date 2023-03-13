@@ -8,16 +8,16 @@ import lombok.Setter;
 @Setter
 @Getter
 @Builder
-public class ClientDTO {
+public class UserDTO {
     private Long id;
     private String name;
 
-    public static ClientDTO fromEntity(User entity) {
+    public static UserDTO fromEntity(User entity) {
         if (entity == null) {
             return null;
         }
 
-        return ClientDTO.builder()
+        return UserDTO.builder()
                 .id(entity.getUser_id())
                 .name(entity.getUsername())
                 .build();

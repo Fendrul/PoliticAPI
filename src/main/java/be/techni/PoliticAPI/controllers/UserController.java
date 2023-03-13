@@ -1,6 +1,6 @@
 package be.techni.PoliticAPI.controllers;
 
-import be.techni.PoliticAPI.models.dto.ClientDTO;
+import be.techni.PoliticAPI.models.dto.UserDTO;
 import be.techni.PoliticAPI.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,12 +20,12 @@ public class UserController {
     }
 
     @GetMapping("/id:{id}")
-    public ClientDTO getClientById(long id) {
+    public UserDTO getClientById(long id) {
         return clientServ.getById(id);
     }
 
     @GetMapping("/name:{name}")
-    public ClientDTO getClientByName(@PathVariable("name") String name) {
+    public UserDTO getClientByName(@PathVariable("name") String name) {
         return clientServ.getByName(name);
     }
 }
