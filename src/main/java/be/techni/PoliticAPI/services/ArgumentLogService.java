@@ -1,7 +1,9 @@
 package be.techni.PoliticAPI.services;
 
+import be.techni.PoliticAPI.models.dto.ArgumentLogDTO;
+
+import java.util.List;
+
 public interface ArgumentLogService {
-
-
-    String getLogFromArgumentId(long argumentId);
+    List<ArgumentLogDTO> getLogsFromArgumentId(int argumentId);
 }
