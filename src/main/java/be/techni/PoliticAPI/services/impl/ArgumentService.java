@@ -1,12 +1,14 @@
 package be.techni.PoliticAPI.services.impl;
 
 import be.techni.PoliticAPI.exceptions.RessourceNotFound;
+import be.techni.PoliticAPI.jwt.JwtProvider;
 import be.techni.PoliticAPI.models.dto.ArgumentDTO;
 import be.techni.PoliticAPI.models.entities.Argument;
 import be.techni.PoliticAPI.models.entities.Category;
 import be.techni.PoliticAPI.models.entities.Source;
 import be.techni.PoliticAPI.models.entities.User;
 import be.techni.PoliticAPI.models.forms.ArgumentForm;
+import be.techni.PoliticAPI.models.forms.ArgumentModificationForm;
 import be.techni.PoliticAPI.repositories.ArgumentRepository;
 import be.techni.PoliticAPI.repositories.CategoryRepository;
 import be.techni.PoliticAPI.repositories.SourceRepository;
@@ -29,11 +31,12 @@ public class ArgumentService {
     private final UserRepository clientRepo;
 
     @Autowired
-    public ArgumentService(ArgumentRepository argumentRepository, SourceRepository sourceRepo, CategoryRepository categoryRepo, UserRepository clientRepo) {
+    public ArgumentService(ArgumentRepository argumentRepository, SourceRepository sourceRepo, CategoryRepository categoryRepo, UserRepository clientRepo, JwtProvider jwtProvider) {
         this.argumentRepo = argumentRepository;
         this.sourceRepo = sourceRepo;
         this.categoryRepo = categoryRepo;
         this.clientRepo = clientRepo;
+        this.jwtProvider = jwtProvider;
     }
 
     public List<ArgumentDTO> getListLastArguments(int listLength) {
@@ -145,5 +148,13 @@ public class ArgumentService {
                 categoryRepo.save(category);
             }
         }
+    }
+
+    public void updateArgument(ArgumentModificationForm form, long argumentId, String userName) {
+        Argument argument = argumentRepo.findById(argumentId)
+                .orElseThrow(() -> new RessourceNotFound("Argument ID %d not found".formatted(argumentId)));
+
+        User user = clientRepo.findByName(userName)
+                .orElseThrow(() -> new RessourceNotFound("User %s not found".formatted(userName)));
     }
 }
