@@ -10,5 +10,5 @@ public class ArgumentModificationForm {
     private String description;
 
     @NotBlank
-    private Long argumentId;
+    private String title;
 }

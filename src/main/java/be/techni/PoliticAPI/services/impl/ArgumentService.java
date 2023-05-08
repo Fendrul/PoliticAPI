@@ -1,23 +1,17 @@
 package be.techni.PoliticAPI.services.impl;
 
 import be.techni.PoliticAPI.exceptions.RessourceNotFound;
-import be.techni.PoliticAPI.jwt.JwtProvider;
 import be.techni.PoliticAPI.models.dto.ArgumentDTO;
-import be.techni.PoliticAPI.models.entities.Argument;
-import be.techni.PoliticAPI.models.entities.Category;
-import be.techni.PoliticAPI.models.entities.Source;
-import be.techni.PoliticAPI.models.entities.User;
+import be.techni.PoliticAPI.models.entities.*;
 import be.techni.PoliticAPI.models.forms.ArgumentForm;
 import be.techni.PoliticAPI.models.forms.ArgumentModificationForm;
-import be.techni.PoliticAPI.repositories.ArgumentRepository;
-import be.techni.PoliticAPI.repositories.CategoryRepository;
-import be.techni.PoliticAPI.repositories.SourceRepository;
-import be.techni.PoliticAPI.repositories.UserRepository;
+import be.techni.PoliticAPI.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,17 +20,22 @@ import java.util.stream.Collectors;
 public class ArgumentService {
 
     private final ArgumentRepository argumentRepo;
+    private final ArgumentLogRepository argumentLogRepo;
     private final SourceRepository sourceRepo;
     private final CategoryRepository categoryRepo;
     private final UserRepository clientRepo;
 
     @Autowired
-    public ArgumentService(ArgumentRepository argumentRepository, SourceRepository sourceRepo, CategoryRepository categoryRepo, UserRepository clientRepo, JwtProvider jwtProvider) {
+    public ArgumentService(ArgumentRepository argumentRepository,
+                           ArgumentLogRepository argumentLogRepo,
+                           SourceRepository sourceRepo,
+                           CategoryRepository categoryRepo,
+                           UserRepository clientRepo) {
         this.argumentRepo = argumentRepository;
+        this.argumentLogRepo = argumentLogRepo;
         this.sourceRepo = sourceRepo;
         this.categoryRepo = categoryRepo;
         this.clientRepo = clientRepo;
-        this.jwtProvider = jwtProvider;
     }
 
     public List<ArgumentDTO> getListLastArguments(int listLength) {
@@ -156,5 +155,19 @@ public class ArgumentService {
 
         User user = clientRepo.findByName(userName)
                 .orElseThrow(() -> new RessourceNotFound("User %s not found".formatted(userName)));
+
+        ArgumentLog argumentLog = new ArgumentLog();
+
+        argumentLog.setArgument(argument);
+        argumentLog.setUser(user);
+        argumentLog.setTitle(argument.getTitle());
+        argumentLog.setDescription(argument.getDescription());
+        argumentLog.setModificationDate(LocalDateTime.now());
+        argumentLogRepo.save(argumentLog);
+
+        argument.setTitle(form.getTitle());
+        argument.setDescription(form.getDescription());
+        argument.getArgumentLogs().add(argumentLog);
+        argumentRepo.save(argument);
     }
 }

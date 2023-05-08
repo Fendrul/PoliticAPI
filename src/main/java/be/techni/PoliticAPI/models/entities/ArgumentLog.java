@@ -16,6 +16,9 @@ public class ArgumentLog {
     @Column(name = "argument_log_id", nullable = false)
     private Long ArgumentLogId;
 
+    @Column(name = "title", nullable = false)
+    private String title;
+
     @Column(name = "description", nullable = false)
     private String description;
 
