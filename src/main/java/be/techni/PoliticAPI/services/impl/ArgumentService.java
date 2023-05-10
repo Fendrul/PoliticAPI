@@ -1,5 +1,6 @@
 package be.techni.PoliticAPI.services.impl;
 
+import be.techni.PoliticAPI.exceptions.FormFieldError;
 import be.techni.PoliticAPI.exceptions.RessourceNotFound;
 import be.techni.PoliticAPI.models.dto.ArgumentDTO;
 import be.techni.PoliticAPI.models.entities.*;
@@ -7,7 +8,6 @@ import be.techni.PoliticAPI.models.forms.ArgumentForm;
 import be.techni.PoliticAPI.models.forms.ArgumentModificationForm;
 import be.techni.PoliticAPI.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
@@ -46,7 +46,7 @@ public class ArgumentService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public ResponseEntity<?> addArgument(ArgumentForm form, BindingResult result) {
+    public void addArgument(ArgumentForm form, BindingResult result) {
         Argument newArgument = new Argument();
 
         newArgument.setTitle(form.getTitle());
@@ -103,10 +103,9 @@ public class ArgumentService {
 
 
         if (result.hasErrors())
-            return ResponseEntity.badRequest().body(result.getAllErrors());
+            throw new FormFieldError(result);
 
         argumentRepo.save(newArgument);
-        return ResponseEntity.ok().build();
     }
 
     public void addCategoryToArgument(Argument argument, int... categoriesID) {
@@ -167,7 +166,7 @@ public class ArgumentService {
 
         argument.setTitle(form.getTitle());
         argument.setDescription(form.getDescription());
-        argumentRepo.save(argument);
         argument.getArgumentLogs().add(argumentLog);
+        argumentRepo.save(argument);
     }
 }

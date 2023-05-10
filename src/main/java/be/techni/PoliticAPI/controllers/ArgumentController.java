@@ -36,7 +36,9 @@ public class ArgumentController {
         if (result.hasErrors())
             return ResponseEntity.badRequest().body(result.getAllErrors());
 
-        return argumentService.addArgument(form, result);
+        argumentService.addArgument(form, result);
+
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/update/{id}")
