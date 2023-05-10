@@ -4,13 +4,14 @@ import be.techni.PoliticAPI.models.dto.ArgumentDTO;
 import be.techni.PoliticAPI.models.forms.ArgumentForm;
 import be.techni.PoliticAPI.models.forms.ArgumentModificationForm;
 import be.techni.PoliticAPI.services.impl.ArgumentService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -31,7 +32,7 @@ public class ArgumentController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addArgument(@RequestBody @Valid ArgumentForm form, BindingResult result) {
+    public ResponseEntity<?> addArgument(@RequestBody @Validated ArgumentForm form, BindingResult result) {
         if (result.hasErrors())
             return ResponseEntity.badRequest().body(result.getAllErrors());
 
@@ -39,12 +40,14 @@ public class ArgumentController {
     }
 
     @PatchMapping("/update/{id}")
-    public void updateArgument(Authentication auth, @RequestBody @Valid ArgumentModificationForm form, BindingResult result, @RequestParam("id") int argumentId) {
+    public ResponseEntity<?> updateArgument(Authentication auth, @RequestBody @Valid ArgumentModificationForm form, BindingResult result, @PathVariable("id") int argumentId) {
         if (result.hasErrors())
             ResponseEntity.badRequest().body(result.getAllErrors());
 
         String username = auth.getName();
 
         argumentService.updateArgument(form, argumentId, username);
+
+        return ResponseEntity.ok().build();
     }
 }

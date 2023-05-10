@@ -167,7 +167,7 @@ public class ArgumentService {
 
         argument.setTitle(form.getTitle());
         argument.setDescription(form.getDescription());
-        argument.getArgumentLogs().add(argumentLog);
         argumentRepo.save(argument);
+        argument.getArgumentLogs().add(argumentLog);
     }
 }

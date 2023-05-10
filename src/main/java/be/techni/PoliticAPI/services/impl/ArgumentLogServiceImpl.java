@@ -22,18 +22,11 @@ public class ArgumentLogServiceImpl implements ArgumentLogService {
 
     @Override
     public List<ArgumentLogDTO> getLogsFromArgumentId(long argumentId) {
-        return argumentRepo.findById(argumentId)
-                .orElseThrow(() -> new RessourceNotFound("Argument by id %d not found".formatted(argumentId)))
-                .getArgumentLogs()
-                .stream().map(ArgumentLogDTO::fromEntity).toList();
-    }
 
-    @Override
-    public boolean addArgumentLog(String modification, long argumentId) {
         Argument argument = argumentRepo.findById(argumentId)
                 .orElseThrow(() -> new RessourceNotFound("Argument by id %d not found".formatted(argumentId)));
 
-
-        return false;
+        return argumentLogRepo.findAllByArgumentId(argument.getArgument_id())
+                .stream().map(ArgumentLogDTO::fromEntity).toList();
     }
 }

@@ -3,6 +3,7 @@ package be.techni.PoliticAPI.controllers;
 import be.techni.PoliticAPI.models.forms.LoginForm;
 import be.techni.PoliticAPI.models.forms.RegistrationForm;
 import be.techni.PoliticAPI.services.impl.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,8 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api")

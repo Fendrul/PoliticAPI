@@ -1,9 +1,8 @@
 package be.techni.PoliticAPI.models.forms;
 
 import be.techni.PoliticAPI.models.entities.User;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-
-import javax.validation.constraints.NotNull;
 
 @Data
 public class RegistrationForm {
