@@ -1,6 +1,7 @@
 package be.techni.PoliticAPI.models.forms;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,10 +14,8 @@ public class ArgumentForm {
     private String title;
     @NotBlank
     private String description;
-
-    @NotBlank
-    private Long clientId;
     private List<String> sources;
+    @NotNull
     private List<Long> categoriesId;
     private Long answerTo;
 }

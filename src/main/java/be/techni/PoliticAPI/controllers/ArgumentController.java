@@ -32,11 +32,13 @@ public class ArgumentController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addArgument(@RequestBody @Validated ArgumentForm form, BindingResult result) {
+    public ResponseEntity<?> addArgument(Authentication auth, @RequestBody @Validated ArgumentForm form, BindingResult result) {
         if (result.hasErrors())
             return ResponseEntity.badRequest().body(result.getAllErrors());
 
-        argumentService.addArgument(form, result);
+        String username = auth.getName();
+
+        argumentService.addArgument(form, result, username);
 
         return ResponseEntity.ok().build();
     }

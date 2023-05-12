@@ -46,17 +46,16 @@ public class ArgumentService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public void addArgument(ArgumentForm form, BindingResult result) {
+    public void addArgument(ArgumentForm form, BindingResult result, String username) {
         Argument newArgument = new Argument();
 
         newArgument.setTitle(form.getTitle());
         newArgument.setDescription(form.getDescription());
 
-        User user = clientRepo.findById(form.getClientId())
-                .orElseGet(() -> {
-                    result.rejectValue("clientId", "argument.client.invalid", "Client ID %d not found".formatted(form.getClientId()));
-                    return null;
-                });
+        User user = clientRepo.findByName(username)
+                .orElseThrow(
+                        () -> new RessourceNotFound("User not found")
+                );
 
         if (user != null) {
             newArgument.setAuthor(user);
@@ -87,18 +86,20 @@ public class ArgumentService {
             }
         }
 
-        for (String source : form.getSources()) {
-            Source sourceToAdd = sourceRepo.findByDescription(source)
-                    .orElseGet(() -> {
-                        Source newSource = new Source();
-                        newSource.setDescription(source);
-                        sourceRepo.save(newSource);
-                        return newSource;
-                    });
+        if (form.getSources() != null) {
+            for (String source : form.getSources()) {
+                Source sourceToAdd = sourceRepo.findByDescription(source)
+                        .orElseGet(() -> {
+                            Source newSource = new Source();
+                            newSource.setDescription(source);
+                            sourceRepo.save(newSource);
+                            return newSource;
+                        });
 
-            sourceToAdd.setDescription(source);
-            sourceRepo.save(sourceToAdd);
-            newArgument.getSources().add(sourceToAdd);
+                sourceToAdd.setDescription(source);
+                sourceRepo.save(sourceToAdd);
+                newArgument.getSources().add(sourceToAdd);
+            }
         }
 
 
