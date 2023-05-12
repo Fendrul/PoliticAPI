@@ -8,7 +8,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -33,8 +32,9 @@ public class DataLoader implements ApplicationRunner {
         this.argumentService = argumentService;
     }
 
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
 //        Privileges
         Privilege readPrivilege = createPrivilegeIfNotFound("READ_PRIVILEGE");
         Privilege writePrivilege = createPrivilegeIfNotFound("WRITE_PRIVILEGE");
@@ -104,8 +104,7 @@ public class DataLoader implements ApplicationRunner {
         argumentRepo.save(argument);
     }
 
-    @Transactional
-    Privilege createPrivilegeIfNotFound(String name) {
+    private Privilege createPrivilegeIfNotFound(String name) {
         Privilege privilege = privilegeRepo.findByName(name);
         if (privilege == null) {
             privilege = new Privilege(name);
@@ -114,14 +113,12 @@ public class DataLoader implements ApplicationRunner {
         return privilege;
     }
 
-    @Transactional
-    Role createRoleIfNotFound(String name, Set<Privilege> privileges) {
-        Role role = roleRepo.findByName(name)
+    private void createRoleIfNotFound(String name, Set<Privilege> privileges) {
+        roleRepo.findByName(name)
                 .orElseGet(() -> {
                     Role newRole = new Role(name);
                     newRole.setPrivileges(privileges);
                     return roleRepo.save(newRole);
                 });
-        return role;
     }
 }
