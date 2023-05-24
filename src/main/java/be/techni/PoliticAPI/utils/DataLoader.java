@@ -1,6 +1,7 @@
 package be.techni.PoliticAPI.utils;
 
 import be.techni.PoliticAPI.models.entities.*;
+import be.techni.PoliticAPI.models.enums.ArgumentState;
 import be.techni.PoliticAPI.repositories.*;
 import be.techni.PoliticAPI.services.impl.ArgumentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,30 +79,44 @@ public class DataLoader implements ApplicationRunner {
         argument.setAuthor(user);
         argument.setTitle("title test");
         argument.setDescription("description test");
-        argumentService.addCategoryToArgument(argument, 1);
+        argument.setState(ArgumentState.VALIDATED);
+        argumentService.addCategoriesNamesToArgument(argument, 1);
         argumentRepo.save(argument);
 
         argument = new Argument();
         argument.setAuthor(user);
         argument.setTitle("title test answer");
         argument.setDescription("description test answer");
+        argument.setState(ArgumentState.VALIDATED);
         argument.setAnswerTo(argumentRepo.findById(1L).get());
-        argumentService.addCategoryToArgument(argument, 1, 5);
+        argumentService.addCategoriesNamesToArgument(argument, 1, 5);
         argumentRepo.save(argument);
 
         argument = new Argument();
         argument.setAuthor(user);
         argument.setTitle("La vélocité des poules");
         argument.setDescription("La vélocité des poules est un phénomène qui se produit lorsque les poules sont en train de se reproduire. Ce phénomène est très dangereux pour les poules et les humains. Il est donc important de le prévenir.");
+        argument.setState(ArgumentState.VALIDATED);
         argumentRepo.save(argument);
-        argumentService.addCategoryToArgument(argument, 2, 5, 7);
+        argumentService.addCategoriesNamesToArgument(argument, 2, 5, 7);
 
         argument = new Argument();
         argument.setAuthor(user);
         argument.setTitle("Pourquoi les œufs au plat devraient être proscrits");
         argument.setDescription("Les œufs au plat sont un danger pour la santé publique. En effet, ils sont très gras et peuvent provoquer des maladies cardio-vasculaires. Il est donc important de les interdire.");
-        argumentService.addCategoryToArgument(argument, 1, 4, 7);
+        argument.setState(ArgumentState.VALIDATED);
+        argumentService.addCategoriesNamesToArgument(argument, 1, 4, 7);
         argumentRepo.save(argument);
+
+        argument = new Argument();
+        argument.setAuthor(user);
+        argument.setTitle("L'émancipation des femmes dans notre société");
+        argument.setDescription("Les femmes sont encore trop souvent considérées comme des objets dans notre société. Il est donc important de les émanciper afin qu'elles puissent s'épanouir pleinement.");
+        argument.setState(ArgumentState.PENDING);
+        argumentService.addCategoriesNamesToArgument(argument, 1, 3, 5, 7);
+        argumentRepo.save(argument);
+
+        
     }
 
     private Privilege createPrivilegeIfNotFound(String name) {

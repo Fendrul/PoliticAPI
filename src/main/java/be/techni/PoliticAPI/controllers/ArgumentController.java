@@ -27,8 +27,13 @@ public class ArgumentController {
     }
 
     @GetMapping("/list:{id}")
-    public List<ArgumentDTO> getArgumentList(@PathVariable("id") int listLength) {
+    public List<ArgumentDTO> getArgumentList(@PathVariable("id") long listLength) {
         return argumentService.getListLastArguments(listLength);
+    }
+
+    @GetMapping("/pending_arguments_list:{id}")
+    public List<ArgumentDTO> getPendingArgumentList(@PathVariable("id") long listLength) {
+        return argumentService.getListPendingArguments(listLength);
     }
 
     @PostMapping("/add")
@@ -43,8 +48,22 @@ public class ArgumentController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/validate/{id}")
+    public ResponseEntity<?> validateArgument(@PathVariable("id") long argumentId) {
+        argumentService.validateArgument(argumentId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/refuse/{id}")
+    public ResponseEntity<?> refuseArgument(@PathVariable("id") long argumentId) {
+        argumentService.deleteArgument(argumentId);
+
+        return ResponseEntity.ok().build();
+    }
+
     @PatchMapping("/update/{id}")
-    public ResponseEntity<?> updateArgument(Authentication auth, @RequestBody @Valid ArgumentModificationForm form, BindingResult result, @PathVariable("id") int argumentId) {
+    public ResponseEntity<?> updateArgument(Authentication auth, @RequestBody @Valid ArgumentModificationForm form, BindingResult result, @PathVariable("id") long argumentId) {
         if (result.hasErrors())
             ResponseEntity.badRequest().body(result.getAllErrors());
 

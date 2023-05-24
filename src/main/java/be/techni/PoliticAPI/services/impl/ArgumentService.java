@@ -4,6 +4,7 @@ import be.techni.PoliticAPI.exceptions.FormFieldError;
 import be.techni.PoliticAPI.exceptions.RessourceNotFound;
 import be.techni.PoliticAPI.models.dto.ArgumentDTO;
 import be.techni.PoliticAPI.models.entities.*;
+import be.techni.PoliticAPI.models.enums.ArgumentState;
 import be.techni.PoliticAPI.models.forms.ArgumentForm;
 import be.techni.PoliticAPI.models.forms.ArgumentModificationForm;
 import be.techni.PoliticAPI.repositories.*;
@@ -38,8 +39,8 @@ public class ArgumentService {
         this.clientRepo = clientRepo;
     }
 
-    public List<ArgumentDTO> getListLastArguments(int listLength) {
-        List<Argument> lastArguments = argumentRepo.findLastArguments(listLength);
+    public List<ArgumentDTO> getListLastArguments(long listLength) {
+        List<Argument> lastArguments = argumentRepo.findLastValidatedArguments(listLength);
 
         return lastArguments.stream()
                 .map(ArgumentDTO::fromEntity)
@@ -106,10 +107,12 @@ public class ArgumentService {
         if (result.hasErrors())
             throw new FormFieldError(result);
 
+        newArgument.setState(ArgumentState.PENDING);
+
         argumentRepo.save(newArgument);
     }
 
-    public void addCategoryToArgument(Argument argument, int... categoriesID) {
+    public void addCategoriesNamesToArgument(Argument argument, int... categoriesID) {
         List<Category> categories = new ArrayList<>();
 
         for (long categoryId : categoriesID) {
@@ -120,10 +123,35 @@ public class ArgumentService {
                 categories.add(categoryToAdd);
         }
 
-        addCategoryToArgument(argument, categories);
+        addCategoriesToArgument(argument, categories);
     }
 
-    public void addCategoryToArgument(Argument argument, String... categoriesName) {
+    public void removeCategoryIDToArgument(Argument argument, int... categoriesID) {
+        List<Category> categories = new ArrayList<>();
+
+        for (long categoryId : categoriesID) {
+            Category categoryToAdd = categoryRepo.findByIdEagerFetch(categoryId)
+                    .orElseThrow(() -> new RessourceNotFound("Category ID %d not found".formatted(categoryId)));
+
+            if (categoryToAdd != null)
+                categories.add(categoryToAdd);
+        }
+
+        removeCategoryToArgument(argument, categories);
+    }
+
+    private void removeCategoryToArgument(Argument argument, List<Category> categories) {
+        for (Category category : categories) {
+            if (category != null && argument.getCategories().contains(category)) {
+                argument.getCategories().remove(category);
+                category.getArguments().remove(argument);
+                argumentRepo.save(argument);
+                categoryRepo.save(category);
+            }
+        }
+    }
+
+    public void addCategoriesNamesToArgument(Argument argument, String... categoriesName) {
         List<Category> categories = new ArrayList<>();
 
         for (String categoryName : categoriesName) {
@@ -135,10 +163,10 @@ public class ArgumentService {
             }
         }
 
-        addCategoryToArgument(argument, categories);
+        addCategoriesToArgument(argument, categories);
     }
 
-    public void addCategoryToArgument(Argument argument, List<Category> categories) {
+    public void addCategoriesToArgument(Argument argument, List<Category> categories) {
         for (Category category : categories) {
             if (category != null && !argument.getCategories().contains(category)) {
                 argument.getCategories().add(category);
@@ -169,5 +197,28 @@ public class ArgumentService {
         argument.setDescription(form.getDescription());
         argument.getArgumentLogs().add(argumentLog);
         argumentRepo.save(argument);
+    }
+
+    public List<ArgumentDTO> getListPendingArguments(long listLength) {
+        List<Argument> pendingArguments = argumentRepo.findPendingArguments(listLength);
+
+        return pendingArguments.stream()
+                .map(ArgumentDTO::fromEntity)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public void validateArgument(long argumentId) {
+        Argument argument = argumentRepo.findById(argumentId)
+                .orElseThrow(() -> new RessourceNotFound("Argument ID %d not found".formatted(argumentId)));
+
+        argument.setState(ArgumentState.VALIDATED);
+        argumentRepo.save(argument);
+    }
+
+    public void deleteArgument(long argumentId) {
+        Argument argument = argumentRepo.findById(argumentId)
+                .orElseThrow(() -> new RessourceNotFound("Argument ID %d not found".formatted(argumentId)));
+
+        argumentRepo.delete(argument);
     }
 }

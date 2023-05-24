@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/politicalArguments
+    url: jdbc:postgresql://localhost:6969/politicalArguments
     username: postgres
     password: 1234
     driver-class-name: org.postgresql.Driver
@@ -14,3 +14,4 @@ spring:
 jwt:
   secret: mySecretToken
   expirationTime: 86400000
+
