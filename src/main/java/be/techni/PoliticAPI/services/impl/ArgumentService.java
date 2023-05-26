@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class ArgumentService {
+    private static final int SIZE_LIMIT_FOR_FETCHING = 100;
 
     private final ArgumentRepository argumentRepo;
     private final ArgumentLogRepository argumentLogRepo;
@@ -199,8 +200,8 @@ public class ArgumentService {
         argumentRepo.save(argument);
     }
 
-    public List<ArgumentDTO> getListPendingArguments(long listLength) {
-        List<Argument> pendingArguments = argumentRepo.findPendingArguments(listLength);
+    public List<ArgumentDTO> getListPendingArguments() {
+        List<Argument> pendingArguments = argumentRepo.findPendingArguments(SIZE_LIMIT_FOR_FETCHING);
 
         return pendingArguments.stream()
                 .map(ArgumentDTO::fromEntity)
@@ -220,5 +221,14 @@ public class ArgumentService {
                 .orElseThrow(() -> new RessourceNotFound("Argument ID %d not found".formatted(argumentId)));
 
         argumentRepo.delete(argument);
+    }
+
+    public List<ArgumentDTO> getArgumentFromCategoryId(long categoryId) {
+        categoryRepo.findById(categoryId)
+                .orElseThrow(() -> new RessourceNotFound("Category ID %d not found".formatted(categoryId)));
+
+        return argumentRepo.findByCategoryId(categoryId, SIZE_LIMIT_FOR_FETCHING).stream()
+                .map(ArgumentDTO::fromEntity)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }

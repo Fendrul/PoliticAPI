@@ -31,9 +31,14 @@ public class ArgumentController {
         return argumentService.getListLastArguments(listLength);
     }
 
-    @GetMapping("/pending_arguments_list:{id}")
-    public List<ArgumentDTO> getPendingArgumentList(@PathVariable("id") long listLength) {
-        return argumentService.getListPendingArguments(listLength);
+    @GetMapping("/pending_arguments_list")
+    public List<ArgumentDTO> getPendingArgumentList() {
+        return argumentService.getListPendingArguments();
+    }
+
+    @GetMapping("/category/{id}")
+    public List<ArgumentDTO> getArgumentFromCategoryId(@PathVariable("id") long categoryId) {
+        return argumentService.getArgumentFromCategoryId(categoryId);
     }
 
     @PostMapping("/add")
